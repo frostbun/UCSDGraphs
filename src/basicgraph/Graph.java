@@ -5,8 +5,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
 
 import util.GraphLoader;
 
@@ -121,8 +119,12 @@ public abstract class Graph {
 	 * @return The degree sequence of this graph.
 	 */
 	public List<Integer> degreeSequence() {
-		// XXX: Implement in part 1 of week 2
-		return null;
+		List<Integer> ret = new ArrayList<>();
+		for(int i=0; i<getNumVertices(); ++i) {
+			ret.add(getNeighbors(i).size() + getInNeighbors(i).size());
+		}
+		Collections.sort(ret, Collections.reverseOrder());
+		return ret;
 	}
 	
 	/**
@@ -130,7 +132,6 @@ public abstract class Graph {
 	 * @param v The starting vertex
 	 * @return A list of the vertices that can be reached in exactly two hops (by 
 	 * following two edges) from vertex v.
-	 * XXX: Implement in part 2 of week 2 for each subclass of Graph
 	 */
 	public abstract List<Integer> getDistance2(int v); 
 
