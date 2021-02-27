@@ -7,12 +7,15 @@
  */
 package roadgraph;
 
-
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.function.Consumer;
 
 import geography.GeographicPoint;
+// import javafx.print.PrinterAttributes;
 import util.GraphLoader;
 
 /**
@@ -23,15 +26,17 @@ import util.GraphLoader;
  *
  */
 public class MapGraph {
-	//TODO: Add your member variables here in WEEK 3
-	
+	private int numVertices;
+	private HashSet<GeographicPoint> vertices;
+	private HashMap<GeographicPoint, ArrayList<GeographicPoint>> adjList;
 	
 	/** 
 	 * Create a new empty MapGraph 
 	 */
 	public MapGraph()
 	{
-		// TODO: Implement in this constructor in WEEK 3
+		this.numVertices = 0;
+		this.adjList = new HashMap<>();
 	}
 	
 	/**
@@ -40,8 +45,7 @@ public class MapGraph {
 	 */
 	public int getNumVertices()
 	{
-		//TODO: Implement this method in WEEK 3
-		return 0;
+		return numVertices;
 	}
 	
 	/**
@@ -50,8 +54,7 @@ public class MapGraph {
 	 */
 	public Set<GeographicPoint> getVertices()
 	{
-		//TODO: Implement this method in WEEK 3
-		return null;
+		return vertices;
 	}
 	
 	/**
@@ -60,8 +63,11 @@ public class MapGraph {
 	 */
 	public int getNumEdges()
 	{
-		//TODO: Implement this method in WEEK 3
-		return 0;
+		int count = 0;
+		for(ArrayList<GeographicPoint> adj: adjList.values()) {
+			count += adj.size();
+		}
+		return count;
 	}
 
 	
@@ -75,8 +81,13 @@ public class MapGraph {
 	 */
 	public boolean addVertex(GeographicPoint location)
 	{
-		// TODO: Implement this method in WEEK 3
-		return false;
+		if(location == null || vertices.contains(location)) {
+			return false;
+		}
+
+		vertices.add(location);
+		adjList.put(location, new ArrayList<>());
+		return true;
 	}
 	
 	/**
@@ -94,8 +105,13 @@ public class MapGraph {
 	public void addEdge(GeographicPoint from, GeographicPoint to, String roadName,
 			String roadType, double length) throws IllegalArgumentException {
 
-		//TODO: Implement this method in WEEK 3
-		
+		if(from == null || to == null || roadName == null ||
+				roadType == null || length < 0) {
+
+			throw new IllegalArgumentException();
+		}
+
+		adjList.get(from).add(to);
 	}
 	
 
