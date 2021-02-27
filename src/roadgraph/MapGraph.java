@@ -9,13 +9,15 @@ package roadgraph;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.function.Consumer;
 
 import geography.GeographicPoint;
-// import javafx.print.PrinterAttributes;
+import javafx.print.PrinterAttributes;
 import util.GraphLoader;
 
 /**
@@ -26,16 +28,15 @@ import util.GraphLoader;
  *
  */
 public class MapGraph {
-	private int numVertices;
-	private HashSet<GeographicPoint> vertices;
-	private HashMap<GeographicPoint, ArrayList<GeographicPoint>> adjList;
+	private Set<GeographicPoint> vertices;
+	private Map<GeographicPoint, ArrayList<GeographicPoint>> adjList;
 	
 	/** 
 	 * Create a new empty MapGraph 
 	 */
 	public MapGraph()
 	{
-		this.numVertices = 0;
+		this.vertices = new HashSet<>();
 		this.adjList = new HashMap<>();
 	}
 	
@@ -45,7 +46,7 @@ public class MapGraph {
 	 */
 	public int getNumVertices()
 	{
-		return numVertices;
+		return vertices.size();
 	}
 	
 	/**
@@ -139,12 +140,37 @@ public class MapGraph {
 	public List<GeographicPoint> bfs(GeographicPoint start, 
 			 					     GeographicPoint goal, Consumer<GeographicPoint> nodeSearched)
 	{
-		// TODO: Implement this method in WEEK 3
-		
-		// Hook for visualization.  See writeup.
-		//nodeSearched.accept(next.getLocation());
+		// init
+		List<GeographicPoint> queue = new LinkedList<>();
+		Set<GeographicPoint> visited = new HashSet<>();
+		Map<GeographicPoint, GeographicPoint> prev = new HashMap<>();
+		queue.add(start);
+		visited.add(start);
+		prev.put(start, null);
+		nodeSearched.accept(start);
 
-		return null;
+		// bfs
+		while(!queue.isEmpty() && !visited.contains(goal)) {
+			GeographicPoint curr = queue.remove(0);
+			for(GeographicPoint next: adjList.get(curr)) {
+				if(!visited.contains(next)) {
+					queue.add(next);
+					visited.add(next);
+					prev.put(next, curr);
+					nodeSearched.accept(next);
+				}
+			}
+		}
+
+		// backtrack
+		List<GeographicPoint> road = new LinkedList<>();
+		GeographicPoint curr = goal;
+		road.add(0, curr);
+		while(prev.get(curr) != null) {
+			curr = prev.get(curr);
+			road.add(0, curr);
+		}
+		return road;
 	}
 	
 
