@@ -17,7 +17,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import geography.GeographicPoint;
-import javafx.print.PrinterAttributes;
 import util.GraphLoader;
 
 /**
@@ -28,8 +27,8 @@ import util.GraphLoader;
  *
  */
 public class MapGraph {
-	private Set<GeographicPoint> vertices;
-	private Map<GeographicPoint, ArrayList<GeographicPoint>> adjList;
+	private Set<MapVertex> vertices;
+	private HashMap<GeographicPoint, MapVertex> trace;
 	
 	/** 
 	 * Create a new empty MapGraph 
@@ -37,7 +36,7 @@ public class MapGraph {
 	public MapGraph()
 	{
 		this.vertices = new HashSet<>();
-		this.adjList = new HashMap<>();
+		this.trace = new HashMap<>();
 	}
 	
 	/**
@@ -55,7 +54,7 @@ public class MapGraph {
 	 */
 	public Set<GeographicPoint> getVertices()
 	{
-		return vertices;
+		return trace.keySet();
 	}
 	
 	/**
@@ -65,8 +64,8 @@ public class MapGraph {
 	public int getNumEdges()
 	{
 		int count = 0;
-		for(ArrayList<GeographicPoint> adj: adjList.values()) {
-			count += adj.size();
+		for(MapVertex vertex: vertices) {
+			count += vertex.getAdjVertices().size();
 		}
 		return count;
 	}
@@ -82,12 +81,13 @@ public class MapGraph {
 	 */
 	public boolean addVertex(GeographicPoint location)
 	{
-		if(location == null || vertices.contains(location)) {
+		if(location == null || trace.containsKey(location)) {
 			return false;
 		}
 
-		vertices.add(location);
-		adjList.put(location, new ArrayList<>());
+		MapVertex toAdd = new MapVertex(location);
+		vertices.add(toAdd);
+		trace.put(location, toAdd);
 		return true;
 	}
 	
@@ -112,7 +112,7 @@ public class MapGraph {
 			throw new IllegalArgumentException();
 		}
 
-		adjList.get(from).add(to);
+		trace.get(from).addEdge(trace.get(to), roadName, roadType, length);
 	}
 	
 
@@ -141,34 +141,37 @@ public class MapGraph {
 			 					     GeographicPoint goal, Consumer<GeographicPoint> nodeSearched)
 	{
 		// init
-		List<GeographicPoint> queue = new LinkedList<>();
-		Set<GeographicPoint> visited = new HashSet<>();
-		Map<GeographicPoint, GeographicPoint> prev = new HashMap<>();
-		queue.add(start);
-		visited.add(start);
-		prev.put(start, null);
-		nodeSearched.accept(start);
+		List<MapVertex> queue = new LinkedList<>();
+		Set<MapVertex> visited = new HashSet<>();
+		Map<MapVertex, MapVertex> prev = new HashMap<>();
+		MapVertex begin = trace.get(start);
+		MapVertex end = trace.get(goal);
+		queue.add(begin);
+		visited.add(begin);
+		prev.put(begin, null);
+		nodeSearched.accept(begin.getLocation());
 
 		// bfs
-		while(!queue.isEmpty() && !visited.contains(goal)) {
-			GeographicPoint curr = queue.remove(0);
-			for(GeographicPoint next: adjList.get(curr)) {
+		while(!queue.isEmpty() && !visited.contains(end)) {
+			MapVertex curr = queue.remove(0);
+			for(MapEdge edge: curr.getAdjVertices()) {
+				MapVertex next = edge.getEnd();
 				if(!visited.contains(next)) {
 					queue.add(next);
 					visited.add(next);
 					prev.put(next, curr);
-					nodeSearched.accept(next);
+					nodeSearched.accept(next.getLocation());
 				}
 			}
 		}
 
 		// backtrack
 		List<GeographicPoint> road = new LinkedList<>();
-		GeographicPoint curr = goal;
-		road.add(0, curr);
+		MapVertex curr = end;
+		road.add(0, curr.getLocation());
 		while(prev.get(curr) != null) {
 			curr = prev.get(curr);
-			road.add(0, curr);
+			road.add(0, curr.getLocation());
 		}
 		return road;
 	}
