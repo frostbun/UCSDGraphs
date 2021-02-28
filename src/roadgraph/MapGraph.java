@@ -138,7 +138,8 @@ public class MapGraph {
 	 *   path from start to goal (including both start and goal).
 	 */
 	public List<GeographicPoint> bfs(GeographicPoint start, 
-			 					     GeographicPoint goal, Consumer<GeographicPoint> nodeSearched)
+			 					     GeographicPoint goal,
+									 Consumer<GeographicPoint> nodeSearched)
 	{
 		// init
 		List<MapVertex> queue = new LinkedList<>();
@@ -205,7 +206,8 @@ public class MapGraph {
 	 *   start to goal (including both start and goal).
 	 */
 	public List<GeographicPoint> dijkstra(GeographicPoint start, 
-										  GeographicPoint goal, Consumer<GeographicPoint> nodeSearched) {
+										  GeographicPoint goal,
+										  Consumer<GeographicPoint> nodeSearched) {
 		
 		// init
 		Map<MapVertex, Double> distance = new HashMap<>();
@@ -311,7 +313,8 @@ public class MapGraph {
 	 *   start to goal (including both start and goal).
 	 */
 	public List<GeographicPoint> aStarSearch(GeographicPoint start, 
-											 GeographicPoint goal, Consumer<GeographicPoint> nodeSearched) {
+											 GeographicPoint goal,
+											 Consumer<GeographicPoint> nodeSearched) {
 		
 		// init
 		Map<MapVertex, Double> distance = new HashMap<>();
