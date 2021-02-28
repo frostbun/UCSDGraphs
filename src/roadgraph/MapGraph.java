@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -165,6 +166,11 @@ public class MapGraph {
 			}
 		}
 
+		// cant find a way
+		if(!visited.contains(end)) {
+			return new LinkedList<>();
+		}
+
 		// backtrack
 		List<GeographicPoint> road = new LinkedList<>();
 		MapVertex curr = end;
@@ -200,14 +206,87 @@ public class MapGraph {
 	 *   start to goal (including both start and goal).
 	 */
 	public List<GeographicPoint> dijkstra(GeographicPoint start, 
-										  GeographicPoint goal, Consumer<GeographicPoint> nodeSearched)
-	{
-		// TODO: Implement this method in WEEK 4
-
-		// Hook for visualization.  See writeup.
-		//nodeSearched.accept(next.getLocation());
+										  GeographicPoint goal, Consumer<GeographicPoint> nodeSearched) {
 		
-		return null;
+		// init
+		Map<MapVertex, Double> distance = new HashMap<>();
+		Map<MapVertex, MapVertex> prev = new HashMap<>();
+		MapVertex begin = trace.get(start);
+		MapVertex end = trace.get(goal);
+		distance.put(begin, 0.0);
+		prev.put(begin, null);
+		
+		PriorityQueue<DistanceToBegin> queue = new PriorityQueue<>();
+		Set<MapVertex> visited = new HashSet<>();
+		queue.add(new DistanceToBegin(begin, 0));
+
+		// dijkstra
+		if(!dijkstraImplement(prev, distance, begin, end, nodeSearched, queue, visited)) {
+			// cant find a way
+			return new LinkedList<>();
+		}
+
+		// backtrack
+		List<GeographicPoint> road = new LinkedList<>();
+		MapVertex curr = end;
+		road.add(0, curr.getLocation());
+		while(prev.get(curr) != null) {
+			curr = prev.get(curr);
+			road.add(0, curr.getLocation());
+		}
+		return road;
+	}
+
+	private boolean dijkstraImplement(Map<MapVertex, MapVertex> prev,
+										Map<MapVertex, Double> distance,
+										MapVertex begin, MapVertex end,
+										Consumer<GeographicPoint> nodeSearched,
+										PriorityQueue<DistanceToBegin> queue,
+										Set<MapVertex> visited) {
+
+		// init
+
+		while(!queue.isEmpty()) {
+
+			// dequeue
+			DistanceToBegin curr = queue.remove();
+			while(visited.contains(curr.getVertex()) && !queue.isEmpty()) {
+				curr = queue.remove();
+			}
+
+			MapVertex vertex = curr.getVertex();
+			double dist = curr.getDistance();
+			// System.out.println(dist);
+
+			// visited all vertex in queue but cant find a way
+			if(visited.contains(vertex)) {
+				return false;
+			}
+			
+			// set curr vertex as visited
+			visited.add(vertex);
+			nodeSearched.accept(vertex.getLocation());
+
+			// found shortest way
+			if(vertex == end) {
+				return true;
+			}
+
+			// add adj vertices to queue
+			for(MapEdge edge: vertex.getAdjVertices()) {
+
+				MapVertex next = edge.getEnd();
+				double distToNext = dist + edge.getLength();
+
+				if(!visited.contains(next) && (distance.get(next) == null || distToNext < distance.get(next))) {
+					queue.add(new DistanceToBegin(next, distToNext));
+					distance.put(next, distToNext);
+					prev.put(next, vertex);
+				}
+			}
+		}
+
+		return false;
 	}
 
 	/** Find the path from start to goal using A-Star search
@@ -232,14 +311,37 @@ public class MapGraph {
 	 *   start to goal (including both start and goal).
 	 */
 	public List<GeographicPoint> aStarSearch(GeographicPoint start, 
-											 GeographicPoint goal, Consumer<GeographicPoint> nodeSearched)
-	{
-		// TODO: Implement this method in WEEK 4
+											 GeographicPoint goal, Consumer<GeographicPoint> nodeSearched) {
 		
-		// Hook for visualization.  See writeup.
-		//nodeSearched.accept(next.getLocation());
+		// init
+		Map<MapVertex, Double> distance = new HashMap<>();
+		Map<MapVertex, MapVertex> prev = new HashMap<>();
+		MapVertex begin = trace.get(start);
+		MapVertex end = trace.get(goal);
+		distance.put(begin, 0.0);
+		prev.put(begin, null);
 		
-		return null;
+		// the only difference to dijkstra
+		PriorityQueue<DistanceToBegin> queue = new PriorityQueue<>(new ComparatorForAStar(start));
+		
+		Set<MapVertex> visited = new HashSet<>();
+		queue.add(new DistanceToBegin(begin, 0));
+
+		// dijkstra
+		if(!dijkstraImplement(prev, distance, begin, end, nodeSearched, queue, visited)) {
+			// cant find a way
+			return new LinkedList<>();
+		}
+
+		// backtrack
+		List<GeographicPoint> road = new LinkedList<>();
+		MapVertex curr = end;
+		road.add(0, curr.getLocation());
+		while(prev.get(curr) != null) {
+			curr = prev.get(curr);
+			road.add(0, curr.getLocation());
+		}
+		return road;
 	}
 
 	
