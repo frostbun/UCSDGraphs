@@ -27,7 +27,6 @@ import util.GraphLoader;
  *
  */
 public class MapGraph {
-	private Set<MapVertex> vertices;
 	private HashMap<GeographicPoint, MapVertex> trace;
 	
 	/** 
@@ -35,7 +34,6 @@ public class MapGraph {
 	 */
 	public MapGraph()
 	{
-		this.vertices = new HashSet<>();
 		this.trace = new HashMap<>();
 	}
 	
@@ -45,7 +43,7 @@ public class MapGraph {
 	 */
 	public int getNumVertices()
 	{
-		return vertices.size();
+		return trace.size();
 	}
 	
 	/**
@@ -64,7 +62,7 @@ public class MapGraph {
 	public int getNumEdges()
 	{
 		int count = 0;
-		for(MapVertex vertex: vertices) {
+		for(MapVertex vertex: trace.values()) {
 			count += vertex.getAdjVertices().size();
 		}
 		return count;
@@ -85,9 +83,7 @@ public class MapGraph {
 			return false;
 		}
 
-		MapVertex toAdd = new MapVertex(location);
-		vertices.add(toAdd);
-		trace.put(location, toAdd);
+		trace.put(location, new MapVertex(location));
 		return true;
 	}
 	
