@@ -102,9 +102,9 @@ public class GraphAdjMatrix extends Graph {
 	 */	
 	public List<Integer> getDistance2(int v) {
 		List<Integer> ret = new ArrayList<>();
-		for(int vertex: getNeighbors(v)) {
-			if(!ret.contains(vertex)) {
-				ret.add(vertex);
+		for(int tmp: getNeighbors(v)) {
+			for(int vertex: getNeighbors(tmp)) {
+					ret.add(vertex);
 			}
 		}
 		return ret;
